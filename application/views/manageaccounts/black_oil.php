@@ -316,7 +316,7 @@ if(strpos($this->helper_model->page_url(),'?') == false){
     echo $this->helper_model->page_url()."?";
 }else{echo $this->helper_model->page_url()."&";}
 ?>print">
-<table class="table table-bordered table-hover table-striped accounts-table sortable" style="min-width:1900px;">
+<table class="table table-bordered table-hover table-striped accounts-table sortable" style="min-width:2000px;">
 
 <thead style="border-top: 4px solid lightgray;">
 
@@ -326,7 +326,9 @@ if(strpos($this->helper_model->page_url(),'?') == false){
     <th></th>
 </tr>
 <tr>
-    <th colspan="23"></th>
+    <th colspan="16"></th>
+    <th><a href="#" onclick="set_dr_cr_entry_link('net_freight_on_shortage_cst_link','net_freight_on_shortage_qty_cst', 'black_oil')" id="net_freight_on_shortage_cst_link" class="btn btn-danger dr_cr_btn open_voucher_for_user">Dr / Cr</a></th></th>
+    <th colspan="7"></th>
     <th><a href="#" onclick="set_dr_cr_entry_link('company_wht_entry_link','company_wht', 'black_oil')" id="company_wht_entry_link" class="btn btn-danger dr_cr_btn open_voucher_for_user">Dr / Cr</a></th></th>
     <th><a href="#" onclick="set_dr_cr_entry_link('contractor_freight_entry_link','contractor_freight', 'black_oil')" id="contractor_freight_entry_link" class="btn btn-danger dr_cr_btn open_voucher_for_user">Dr / Cr</a></th>
     <th></th>
@@ -353,6 +355,7 @@ if(strpos($this->helper_model->page_url(),'?') == false){
     $total_rec_qty = 0;
     $total_freight_on_shrt_qty_cmp = 0;
     $total_freight_on_shrt_qty_cst = 0;
+    $total_net_freight_on_shrt_qty_cst = 0;
     $grand_total_frieght_cmp = 0;
     $grand_total_frieght_cst = 0;
     $total_freight_amount_cmp = 0;
@@ -384,6 +387,7 @@ $unit = 1000; //used to convert from liters to tuns or vice versa.
     $company_freight_unit = $detail->company_freight_unit*$unit;
     $customer_freight_unit = $detail->customer_freight_unit*$unit;
     $shortage_rate = $detail->shortage_rate/$unit;
+    $net_freight_on_shortage_qty = ($detail->freight_on_shortage_qty_cst - (($detail->company_commission + $detail->contractor_commission + $detail->wht)* $detail->freight_on_shortage_qty_cst / 100));
     /*---------------------------------------------*/
 
     /**--------------------------------
@@ -395,6 +399,7 @@ $unit = 1000; //used to convert from liters to tuns or vice versa.
     $total_rec_qty += $rec_quantity;
     $total_freight_on_shrt_qty_cmp += $detail->freight_on_shortage_qty_cmp;
     $total_freight_on_shrt_qty_cst += $detail->freight_on_shortage_qty_cst;
+    $total_net_freight_on_shrt_qty_cst += $net_freight_on_shortage_qty;
     $grand_total_frieght_cmp += $detail->total_freight_cmp;
     $grand_total_frieght_cst += $detail->total_freight_cst;
     $total_freight_amount_cmp += $detail->freight_amount_cmp;
@@ -424,28 +429,29 @@ $unit = 1000; //used to convert from liters to tuns or vice versa.
         td($detail->stn_number);
         td($detail->tanker_number);
         td($detail->product);
-        td($detail->dis_qty / $unit);
+        td(round($detail->dis_qty / $unit, 2));
         td($detail->rec_qty / $unit);
         td($detail->shortage_quantity / $unit);
-        td($detail->freight_on_shortage_qty_cmp);
-        td($detail->freight_on_shortage_qty_cst);
+        td(round($detail->freight_on_shortage_qty_cmp, 2));
+        td(round($detail->freight_on_shortage_qty_cst, 2));
+        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'net_freight_on_shortage_qty_cst').round($net_freight_on_shortage_qty, 2));
         td($detail->company_freight_unit * $unit);
-        td($detail->total_freight_cmp);
-        td($detail->freight_amount_cmp);
+        td(round($detail->total_freight_cmp, 2));
+        td(round($detail->freight_amount_cmp, 2));
         td($detail->company);
-        td($detail->shortage_rate);
-        td($detail->shortage_amount);
-        td($detail->payable_before_tax);
-        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'company_wht')."".$detail->wht."% = ".$detail->wht_amount);
-        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'contractor_freight')."".$detail->net_payables);
-        td($detail->contractor_net_freight);
-        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'company_commission')."".$detail->company_commission."% = ".$detail->company_commission_amount);
-        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'contractor_commission')."".$detail->contractor_commission."% = ".$detail->contractor_commission_amount);
+        td(round($detail->shortage_rate, 2));
+        td(round($detail->shortage_amount, 2));
+        td(round($detail->payable_before_tax, 2));
+        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'company_wht')."".$detail->wht."% = ".round($detail->wht_amount, 2));
+        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'contractor_freight')."".round($detail->net_payables, 2));
+        td(round($detail->contractor_net_freight, 2));
+        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'company_commission')."".$detail->company_commission."% = ".round($detail->company_commission_amount, 2));
+        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'contractor_commission')."".$detail->contractor_commission."% = ".round($detail->contractor_commission_amount, 2));
         td($detail->contractor);
         td($detail->customer_freight_unit * $unit);
-        td($detail->total_freight_cst);
-        td($detail->freight_amount_cst);
-        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'customer_freight')."".$detail->customer_freight);
+        td(round($detail->total_freight_cst, 2));
+        td(round($detail->freight_amount_cst, 2));
+        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'customer_freight')."".round($detail->customer_freight, 2));
         td($detail->customer);
 
         $service_charges = 0;
@@ -456,7 +462,7 @@ $unit = 1000; //used to convert from liters to tuns or vice versa.
 
         $total_service_charges += $service_charges;
 
-        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'contractor_service_charges')."".$service_charges);
+        td($dr_cr_status_manager->get_status($detail->trip_detail_id, 'contractor_service_charges')."".round($service_charges, 2));
         td($detail->billed);
         ?>
     </tr>
@@ -479,6 +485,9 @@ $unit = 1000; //used to convert from liters to tuns or vice versa.
     </td>
     <td>
         <?= rupee_format($total_freight_on_shrt_qty_cst) ?>
+    </td>
+    <td>
+        <?= rupee_format($total_net_freight_on_shrt_qty_cst) ?>
     </td>
     <td></td>
     <td>

@@ -455,6 +455,11 @@ class Sort {
                     'type'=>'numeric',
                 ],
                 [
+                    'column_name'=>'Net frt on shrt (cst)',
+                    'slug'=>'net_freight_on_shortage_qty_cst',
+                    'type'=>'numeric',
+                ],
+                [
                     'column_name'=>'company frt / unit',
                     'slug'=>'company_freight_unit',
                     'type'=>'numeric',

@@ -3553,7 +3553,7 @@ class Trips_model extends CI_Model {
         }
 
         /***********************************************************************************************
-        ***************************************Mass Editing Portion*************************************/
+         ***************************************Mass Editing Portion*************************************/
 
         /***Hleper Arrays***/
         $voucher_entries_update_array = array();
@@ -3635,20 +3635,20 @@ class Trips_model extends CI_Model {
                  * fetching white_oil and black_oil seprate trip ids
                  **/
                 $this->db->select('trip_id, trip_detail_id, product_type');
-                $this->db->where_in('trip_id',$trip_ids_related_to_voucher_id);
+                $this->db->where_in('trip_detail_id',$trip_detail_ids_related_to_voucher_id);
                 $raw_trip_ids_with_product_type = $this->db->get('trips_details_upper_layer_view')->result();
                 $grouped_by_product_type = Arrays::groupBy($raw_trip_ids_with_product_type, Functions::extractField('product_type'));
-                $black_oil_trip_ids = (isset($grouped_by_product_type['black oil']))?property_to_array('trip_id', $grouped_by_product_type['black oil']):[];
-                $white_oil_trip_ids = (isset($grouped_by_product_type['white oil']))?property_to_array('trip_id', $grouped_by_product_type['white oil']):[];
+                $black_oil_trip_ids = (isset($grouped_by_product_type['black oil']))?property_to_array('trip_detail_id', $grouped_by_product_type['black oil']):[];
+                $white_oil_trip_ids = (isset($grouped_by_product_type['white oil']))?property_to_array('trip_detail_id', $grouped_by_product_type['white oil']):[];
                 $black_oil_trip_ids = (sizeof($black_oil_trip_ids) == 0)?[0]: $black_oil_trip_ids;
                 $white_oil_trip_ids = (sizeof($white_oil_trip_ids) == 0)?[0]: $white_oil_trip_ids;
 
                 $this->db->select('*');
-                $this->db->where_in('trip_id',$black_oil_trip_ids);
+                $this->db->where_in('trip_detail_id',$black_oil_trip_ids);
                 $black_oil_trips = $this->db->get('manage_accounts_black_oil_view')->result();
 
                 $this->db->select('*');
-                $this->db->where_in('trip_id',$white_oil_trip_ids);
+                $this->db->where_in('trip_detail_id',$white_oil_trip_ids);
                 $white_oil_trips = $this->db->get('manage_accounts_white_oil_view')->result();
 
                 /**********************************************************/
@@ -3678,7 +3678,6 @@ class Trips_model extends CI_Model {
                     }
                     $total_service_charges += $service_charges;
                 }
-
                 foreach($white_oil_trips as $detail)
                 {
                     //here we will claculate the amounts needed to update
@@ -3706,7 +3705,11 @@ class Trips_model extends CI_Model {
                     $wht_amount = $detail->wht_amount;
                     $total_company_wht += $wht_amount;
 
-                    $service_charges = round($detail->service_charges);
+                    $service_charges = 0;
+                    $service_charges = $detail->total_freight_cmp - $detail->company_commission_amount - $detail->customer_freight_amount - $detail->contractor_commission_amount - $detail->wht_amount;
+                    if($service_charges > -0.1 && $service_charges < 0.1){
+                        $service_charges = 0;
+                    }
                     $total_service_charges += $service_charges;
 
                     $total_freight_for_company = $detail->total_freight_cmp;
@@ -3815,7 +3818,6 @@ class Trips_model extends CI_Model {
         }
 
     }
-
     public function inserted_vouchers_for_newly_added_products($trip_id)
     {
         /*
@@ -4455,5 +4457,19 @@ class Trips_model extends CI_Model {
             return true;
         }
         return false;
+    }
+
+    /*
+     * ---------------------------------------------------------
+     * Returns Trips Details IDs which are used in mass voucher
+     * ---------------------------------------------------------
+     */
+    public  function get_mass_trip_details_ids($mass_voucher_id){
+        $this->db->select('trip_detail_id');
+        $this->db->where('voucher_id', $mass_voucher_id);
+        $result = $this->db->get('trip_detail_voucher_relation')->result();
+        $trip_details_ids = property_to_array('trip_detail_id', $result);
+        $trip_details_ids[] = 0;
+        return $trip_details_ids;
     }
 }

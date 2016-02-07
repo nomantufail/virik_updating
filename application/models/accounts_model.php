@@ -1354,9 +1354,7 @@ Accounts_model extends Parent_Model {
 
         $result = $this->db->get()->result();
         $voucher_ids[0] = 0;
-        foreach($result as $r){
-            array_unshift($voucher_ids, $r->voucher_id);
-        }
+        $voucher_ids = property_to_array('voucher_id', $result);
         return $voucher_ids;
     }
 
@@ -1368,6 +1366,7 @@ Accounts_model extends Parent_Model {
         $keys['sort'] = $sort;
 
         $voucher_ids = $this->searched_voucher_ids($agent, $agent_id, $keys);
+        $voucher_ids = (sizeof($voucher_ids) == 0)?[0]:$voucher_ids;
         $journal = $this->journal($agent, $agent_id, $voucher_ids, $sort);
 
         if($keys['sort']['sort_by'] != 'voucher_journal.id')
@@ -1375,7 +1374,22 @@ Accounts_model extends Parent_Model {
             usort($journal, array("Sorting_Model", "sort_journal"));
         }
 
-        return $journal;
+        /*
+         * ------------------------------------------------
+         * Getting mass vouchers
+         * -------------------------------------------------
+         * */
+        $this->db->select('trip_detail_voucher_relation.voucher_id as voucher_id, products.type as product_type');
+        $this->db->where_in('voucher_id', $voucher_ids);
+        $this->db->join('voucher_journal','voucher_journal.id = trip_detail_voucher_relation.voucher_id', 'left');
+        $this->db->join('trips_details','trips_details.id = trip_detail_voucher_relation.trip_detail_id', 'left');
+        $this->db->join('products','products.id = trips_details.product', 'left');
+        $this->db->where('voucher_journal.auto_generated', '0');
+        $this->db->group_by('trip_detail_voucher_relation.voucher_id');
+        $result = $this->db->get('trip_detail_voucher_relation')->result();
+        $mass_vouchers = Arrays::groupBy($result, Functions::extractField('voucher_id'));
+
+        return ['journal'=>$journal, 'mass_vouchers'=>$mass_vouchers];
     }
 
     public function count_searched_journal($agent, $agent_id, $keys)
@@ -1513,6 +1527,10 @@ Accounts_model extends Parent_Model {
         include_once(APPPATH."models/helperClasses/Voucher_Entry.php");
 
         $accounting_year = $this->accounting_year();
+
+        if($voucher_ids != "" && sizeof($voucher_ids) == 0){
+            $voucher_ids = array(0);
+        }
 
         $this->db->select("voucher_journal.id as voucher_id, voucher_journal.ignored, voucher_entry.id as voucher_entry_id,
                             voucher_journal.voucher_date, voucher_journal.detail, voucher_journal.person_tid,
@@ -1721,6 +1739,7 @@ Accounts_model extends Parent_Model {
             'voucher_journal.person_tid'=>$agent.".".$agent_id,
             'voucher_journal.active'=>1,
         ));
+        $voucher_ids = (sizeof($voucher_ids) > 0)?$voucher_ids:[0];
         $this->db->where_in('voucher_journal.id',$voucher_ids);
         /*
          * deciding weather to exclude bank acount or not?

@@ -3667,6 +3667,29 @@ class Admin extends ParentController {
 
     }
 
+    function get_black_oil_contractor_commission_deduction(){
+        $this->db->select("
+            trip_id, company_commission, contractor_commission, wht, freight_on_shortage_qty_cst
+        ");
+        $this->db->where(array(
+            'trip_date >=' => '2015-11-01',
+            'trip_date <=' => '2015-11-30'
+        ));
+        $this->db->where('customer_id','36');
+        $result = $this->db->get('manage_accounts_black_oil_view')->result();
+        $total_farak = 0;
+        foreach($result as $record){
+            $farak = ($record->freight_on_shortage_qty_cst - (($record->company_commission + $record->contractor_commission + $record->wht)* $record->freight_on_shortage_qty_cst / 100));
+            $total_farak+=$farak;
+            echo $record->trip_id ."_____".$record->freight_on_shortage_qty_cst."______".(($record->company_commission + $record->contractor_commission + $record->wht)* $record->freight_on_shortage_qty_cst / 100)."____".$farak."<br>";
+        }
+
+        var_dump($total_farak);
+//        echo "<pre>";
+//        print_r($result);
+
+    }
+
     function _create_captcha(){
 
         /*$words = array( '2', '3', '4', '5', '6','7', '8', '9','0', 'a', 'b','z', 'n', 'b','x', 'y', 'v');

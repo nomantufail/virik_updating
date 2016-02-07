@@ -243,6 +243,15 @@ class ManageAccounts_model extends CI_Model {
             $this->db->where('customer_freight_unit',$keys['cst_freight_unit']);
         }
 
+        /*
+         * --------------------------------------
+         * filter by trip details ids
+         * --------------------------------------
+         * */
+        if(isset($keys['trip_detail_ids']) && $keys['trip_detail_ids'] != ''){
+            $this->db->where_in('trip_detail_id',$keys['trip_detail_ids']);
+        }
+
         foreach($sorting_info as $sort){
             $this->db->order_by($sort['sort_by'],$sort['order_by']);
         }
@@ -254,6 +263,7 @@ class ManageAccounts_model extends CI_Model {
 
     public function count_searched_white_oil_accounts($keys)
     {
+        return 10000;
         //applying keys....
 
 
@@ -476,6 +486,15 @@ class ManageAccounts_model extends CI_Model {
         if($keys['cst_freight_unit'] != ''){
             $this->db->where('customer_freight_unit',$keys['cst_freight_unit']);
         }
+        /*
+         * --------------------------------------
+         * filter by trip details ids
+         * --------------------------------------
+         * */
+        if(isset($keys['trip_detail_ids']) && $keys['trip_detail_ids'] != ''){
+            $this->db->where_in('trip_detail_id',$keys['trip_detail_ids']);
+        }
+
         $this->db->select("trip_detail_id");
         $result = $this->db->get("manage_accounts_white_oil_view")->num_rows();
         return $result;
@@ -703,6 +722,15 @@ class ManageAccounts_model extends CI_Model {
             $this->db->where('customer_freight_unit',$keys['cst_freight_unit']);
         }
 
+        /*
+         * --------------------------------------
+         * filter by trip details ids
+         * --------------------------------------
+         * */
+        if(isset($keys['trip_detail_ids']) && $keys['trip_detail_ids'] != ''){
+            $this->db->where_in('trip_detail_id',$keys['trip_detail_ids']);
+        }
+
         foreach($sorting_info as $sort){
             $this->db->order_by($sort['sort_by'],$sort['order_by']);
         }
@@ -714,6 +742,7 @@ class ManageAccounts_model extends CI_Model {
 
     public function count_searched_black_oil_accounts($keys)
     {
+        return 10000;
         $this->db->select("trip_detail_id");
         $result = $this->db->get("manage_accounts_black_oil_view")->num_rows();
         return $result;

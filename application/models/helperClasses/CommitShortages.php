@@ -32,7 +32,6 @@ class CommitShortages {
 
         $shortage_ids = explode('_',$_POST['shortage_ids']);
         $shortage_ids = arr_val_del(0, $shortage_ids);
-
         $this->setShortageIds($shortage_ids);
 
         $this->setCommitDate($_POST['commit_date']);
@@ -47,8 +46,11 @@ class CommitShortages {
         $this->saveShortageVouchers();
         $this->ignoreShortageVouchers();
 
-        $this->saveShortageAmountDeductionVouchers();
-        $this->ignoreShortageAmountDeductionVouchers();
+//        $this->saveShortageAmountDeductionVouchers();
+//        $this->ignoreShortageAmountDeductionVouchers();
+
+        $this->saveFreightOnShortageVouchers();
+        //$this->ignoreFreightOnShortageVouchers();
 
         return $this->db->trans_complete();
     }
@@ -142,10 +144,20 @@ class CommitShortages {
         $this->db->insert_batch('voucher_entry',$entries_array);
     }
 
+    public function saveFreightOnShortageVouchers()
+    {
+        $vouchers_array = $this->makeFreightOnShortageVouchersArray();
+        if(sizeof($vouchers_array) == 0)
+            return;
+
+        $this->db->insert_batch('voucher_journal',$vouchers_array);
+        $entries_array = $this->makeFreightOnShortageVouchersEntriesArray();
+        $this->db->insert_batch('voucher_entry',$entries_array);
+    }
+
     public function makeShortageVouchersArray()
     {
         $vouchers = [];
-
         $voucher = [];
 
         $shortagesData = $this->getShortagesData();
@@ -286,6 +298,100 @@ class CommitShortages {
             $entry['related_company'] = 0;
             $entry['credit_amount'] = 0;
             $entry['debit_amount'] = round($shortageData->shortage_amount, 3);
+            $entry['journal_voucher_id'] = $voucher_data->voucher_id;
+
+            $voucher_entries[] = $entry;
+
+
+        }
+
+        return $voucher_entries;
+    }
+
+    public function makeFreightOnShortageVouchersArray()
+    {
+        $vouchers = [];
+        $voucher = [];
+
+        $shortagesData = $this->getBlackOilShortageData();
+        if(sizeof($shortagesData) == 0)
+            return [];
+
+        foreach($shortagesData as $data)
+        {
+            $voucher['voucher_date']  = $this->getCommitDate();
+            $voucher['detail'] = 'Freight on shortage for black oil';
+            $voucher['person_tid'] = 'users.1';
+            $voucher['trip_id'] = $data->trip_id;
+            $voucher['trip_product_detail_id'] = $data->trip_detail_id;
+            $voucher['tanker_id'] = $data->tanker_id;
+            $voucher['voucher_type'] =(($data->shortage_type == 1)?'dest_freight_on_shortage':'decnd_freight_on_shortage');
+            $voucher['active'] = 1;
+
+            $vouchers[] = $voucher;
+        }
+
+        return $vouchers;
+    }
+
+    public function makeFreightOnShortageVouchersEntriesArray()
+    {
+
+        $grouped_shortage_data = $this->groupShortageDataByTripDetailId();
+        $voucher_entries = [];
+
+        $trip_detail_ids = property_to_array('trip_detail_id',$this->getBlackOilShortageData());
+        $trip_detail_ids = (sizeof($trip_detail_ids)> 0)?$trip_detail_ids:[0];
+        $this->db->select('voucher_journal.id as voucher_id, voucher_journal.trip_product_detail_id');
+        $this->db->where_in('trip_product_detail_id',$trip_detail_ids);
+        $where = "(voucher_type = 'dest_freight_on_shortage' OR voucher_type = 'decnd_freight_on_shortage')";
+        $this->db->where($where);
+        $saved_vouchers_data = $this->db->get('voucher_journal')->result();
+
+        //fetching manage_accounts_black_oil
+        $trip_product_detail_ids = property_to_array('trip_product_detail_id', $saved_vouchers_data);
+        $trip_product_detail_ids = (sizeof($trip_product_detail_ids)> 0)?$trip_product_detail_ids:[0];
+        $this->db->select("trip_detail_id, (freight_on_shortage_qty_cst - ((company_commission + contractor_commission + wht) * freight_on_shortage_qty_cst/100)) as net_freight_on_shortage_qty_cst");
+        $this->db->where_in("trip_detail_id", $trip_product_detail_ids);
+        $manage_account_black_oil = $this->db->get('manage_accounts_black_oil_view')->result();
+        $manage_account_black_oil = (sizeof($manage_account_black_oil)> 0)?$manage_account_black_oil:[0];
+        $net_freights_on_shortage_qty_cst = [];
+        foreach($manage_account_black_oil as $ma){
+            $net_freights_on_shortage_qty_cst[$ma->trip_detail_id] = round($ma->net_freight_on_shortage_qty_cst, 2);
+        }
+
+        foreach($saved_vouchers_data as $voucher_data)
+        {
+            $shortageData = $grouped_shortage_data[$voucher_data->trip_product_detail_id];
+            $shortageData = $shortageData[0];
+
+            //calculating amount
+            $net_freight_on_shortage_qty_cst = $net_freights_on_shortage_qty_cst[$voucher_data->trip_product_detail_id];
+
+            $entry = [];
+            $entry['dr_cr'] = 0;
+            $entry['description'] = 'Freight on shortage black oil';
+            $entry['account_title_id'] = 119;
+            $entry['related_other_agent'] = 0;
+            $entry['related_customer'] = 0;
+            $entry['related_contractor'] = 0;
+            $entry['related_company'] = $shortageData->company_id;
+            $entry['credit_amount'] = $net_freight_on_shortage_qty_cst;
+            $entry['debit_amount'] = 0;
+            $entry['journal_voucher_id'] = $voucher_data->voucher_id;
+
+            $voucher_entries[] = $entry;
+
+            $entry = [];
+            $entry['dr_cr'] = 1;
+            $entry['description'] = 'Freight on shortage black oil';
+            $entry['account_title_id'] = 119;
+            $entry['related_other_agent'] = 0;
+            $entry['related_customer'] = $shortageData->customerId;
+            $entry['related_contractor'] = 0;
+            $entry['related_company'] = 0;
+            $entry['credit_amount'] = 0;
+            $entry['debit_amount'] = $net_freight_on_shortage_qty_cst;
             $entry['journal_voucher_id'] = $voucher_data->voucher_id;
 
             $voucher_entries[] = $entry;

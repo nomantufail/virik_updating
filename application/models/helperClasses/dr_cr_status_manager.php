@@ -64,6 +64,26 @@ class Dr_Cr_Status_Manager {
                 }
                 break;
 
+            case "net_freight_on_shortage_qty_cst":
+                $dr = -1;
+                $cr = -1;
+                foreach($statuses as $entry){
+                    if(strtolower($entry->account_title) == strtolower("net freight on shortage quantity cst"))
+                    {
+                        if($entry->dr_cr == 1)
+                        {
+                            $debit_voucher_id = $entry->voucher_id;
+                            $dr = 1;
+                        }
+                        if($entry->dr_cr == 0)
+                        {
+                            $credit_voucher_id = $entry->voucher_id;
+                            $cr = 1;
+                        }
+                    }
+                }
+                break;
+
             case "contractor_commission":
                 $dr = -1;
                 $cr = -1;

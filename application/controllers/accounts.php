@@ -462,7 +462,9 @@ class Accounts extends ParentController {
                 }
             }////////////////////////////////////////////////////////
 
-            $bodyData['journal'] = $this->accounts_model->search_journal($agent, $agent_id, $config["per_page"], $pageNumber, $keys, $sort);
+            $journal = $this->accounts_model->search_journal($agent, $agent_id, $config["per_page"], $pageNumber, $keys, $sort);
+            $bodyData['journal'] = $journal['journal'];
+            $bodyData['mass_vouchers'] = $journal['mass_vouchers'];
 
             /*----------Testing-----------------------------*/
             /*$this->db->select('voucher_journal.id');
@@ -621,7 +623,6 @@ class Accounts extends ParentController {
             ////////////////////////////////
 
 
-
             $headerData = array(
                 'title' => 'Virik Logistics | Accounts',
                 'page' => 'accounts',
@@ -633,7 +634,6 @@ class Accounts extends ParentController {
             );
 
             $bodyData['ledger'] = $this->accounts_model->ledger($agent, $agent_id, $keys);
-
             /*findin opening balance*/
             $bodyData['opening_balance'] = $this->accounts_model->opening_balance_for_ledger($agent, $agent_id);
             /****************************/
@@ -1289,6 +1289,13 @@ class Accounts extends ParentController {
             $this->load->view('accounts/books/tankers_income_statement', $bodyData);
             $this->load->view('components/footer');
         }
+    }
+
+    public function catch_bug($voucher_id = 458){
+        echo "hi";
+        $voucher = $this->accounts_model->voucher($voucher_id);
+        var_dump($voucher);
+        echo 'end';
     }
 
     public function test_ajax($trip_id = '')

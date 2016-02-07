@@ -415,7 +415,7 @@ $total_product_quantity = 0;
         td($detail->tanker_number);
         td($detail->productName);
         td($detail->product_quantity);
-        td($detail->shortage_amount);
+        td(round($detail->shortage_amount, 2));
         td($detail->source." To ".$detail->destination);
         td($detail->stn_number);
         td($detail->company);

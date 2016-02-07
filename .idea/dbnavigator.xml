@@ -49,11 +49,11 @@
         <argument name="shortage_amount">
           <value><![CDATA[3]]></value>
         </argument>
-        <argument name="voucher_id">
-          <value><![CDATA[5]]></value>
-        </argument>
         <argument name="shortage_id">
           <value><![CDATA[3]]></value>
+        </argument>
+        <argument name="voucher_id">
+          <value><![CDATA[5]]></value>
         </argument>
       </connection>
     </argument-values-cache>
