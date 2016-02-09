@@ -44,7 +44,7 @@ class ShortageUpdated extends Event implements EventsInterface
     }
 
     public function updateShortageVouchers(){
-
+        //
     }
 
     public function getFreightOnShortageVoucherId(){

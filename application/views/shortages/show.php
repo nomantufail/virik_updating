@@ -192,8 +192,8 @@
                                 <td><?= $shortage->product_name; ?></td>
                                 <td><?= Carbon::createFromFormat('Y-m-d',$shortage->date)->toFormattedDateString();; ?></td>
                                 <td><?= $shortage->quantity; ?></td>
-                                <td><?= $shortage->rate; ?></td>
-                                <td><?= rupee_format($shortage->shortage_amount); ?></td>
+                                <td><?= round($shortage->rate, 2); ?></td>
+                                <td><?= rupee_format(round($shortage->shortage_amount, 2)); ?></td>
                                 <td>
                                     <a href="<?= base_url()."shortages/edit/".$shortage->shortage_id ?>" class="edit_shortage btn btn-xs btn-warning">Edit</a>
                                     <a class="btn btn-xs btn-danger" onclick="return confirm_deleting()" href="<?= url_path()."?".merge_query($_SERVER['QUERY_STRING'], array('del'=>$shortage->shortage_id)) ?>">Del</a>

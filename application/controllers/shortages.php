@@ -221,6 +221,9 @@ class Shortages extends ParentController {
         include_once(APPPATH."/interfaces/eventsInterface.php");
         include_once(APPPATH."/events/event.php");
         include_once(APPPATH."/events/shortage/shortageUpdated.php");
+        include_once(APPPATH."/events/shortage/shortageDeleted.php");
+        include_once(APPPATH."/events/shortage/freightOnDecandingShortageVoucherDeleted.php");
+        include_once(APPPATH."/events/shortage/decandingShortageVoucherDeleted.php");
     }
 
 }
