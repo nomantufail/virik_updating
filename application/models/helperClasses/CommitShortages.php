@@ -50,7 +50,7 @@ class CommitShortages {
 //        $this->ignoreShortageAmountDeductionVouchers();
 
         $this->saveFreightOnShortageVouchers();
-        //$this->ignoreFreightOnShortageVouchers();
+        $this->ignoreFreightOnShortageVouchers();
 
         return $this->db->trans_complete();
     }
@@ -59,6 +59,12 @@ class CommitShortages {
     {
         $this->ignoreShortageDeductionByDecandingData();
         $this->ignoreShortageDeductionByDestinationData();
+    }
+
+    public function ignoreFreightOnShortageVouchers()
+    {
+        $this->ignoreFreightOnShortageVouchersByDecandingData();
+        $this->ignoreFreightOnShortageVouchersByDestinationData();
     }
 
     public function ignoreShortageDeductionByDecandingData()
@@ -88,6 +94,36 @@ class CommitShortages {
 
         $ignorable_trip_detail_ids = property_to_array('trip_product_detail_id',$result);
         $where_statement = "(voucher_journal.trip_product_detail_id IN (".join(', ',$ignorable_trip_detail_ids).") AND voucher_journal.voucher_type = 'dest_shortage_deduction')";
+        $this->ci->helper_model->ignore_voucher_where($where_statement);
+    }
+
+    public function ignoreFreightOnShortageVouchersByDecandingData()
+    {
+        $decanding_trip_details = $this->getTripDetailIdsWithDecandingShortage();
+        if(sizeof($decanding_trip_details) == 0)
+            return;
+
+        $where_statement = "(voucher_journal.trip_product_detail_id IN (".join(', ',$decanding_trip_details).") AND voucher_journal.voucher_type = 'dest_freight_on_shortage')";
+        $this->ci->helper_model->ignore_voucher_where($where_statement);
+    }
+
+    public function ignoreFreightOnShortageVouchersByDestinationData()
+    {
+        $destinationShortageData = $this->getDestinationShortageData();
+        if(sizeof($destinationShortageData) == 0)
+            return;
+
+        $trip_detail_ids = property_to_array('trip_detail_id',$destinationShortageData);
+        $this->db->select('voucher_journal.trip_product_detail_id');
+        $this->db->where_in('voucher_journal.trip_product_detail_id',$trip_detail_ids);
+        $this->db->where('voucher_journal.voucher_type','decnd_freight_on_shortage');
+        $result = $this->db->get('voucher_journal')->result();
+
+        if(sizeof($result) == 0)
+            return;
+
+        $ignorable_trip_detail_ids = property_to_array('trip_product_detail_id',$result);
+        $where_statement = "(voucher_journal.trip_product_detail_id IN (".join(', ',$ignorable_trip_detail_ids).") AND voucher_journal.voucher_type = 'dest_freight_on_shortage')";
         $this->ci->helper_model->ignore_voucher_where($where_statement);
     }
 

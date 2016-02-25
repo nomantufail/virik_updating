@@ -7,7 +7,7 @@ class Shortages extends ParentController {
     public function __construct()
     {
         parent::__construct();
-
+        $this->load_libs();
         $this->_need_to_save_something();
     }
 
@@ -217,5 +217,13 @@ class Shortages extends ParentController {
         return true;
     }
 
+    public function load_libs(){
+        include_once(APPPATH."/interfaces/eventsInterface.php");
+        include_once(APPPATH."/events/event.php");
+        include_once(APPPATH."/events/shortage/shortageUpdated.php");
+        include_once(APPPATH."/events/shortage/shortageDeleted.php");
+        include_once(APPPATH."/events/shortage/freightOnDecandingShortageVoucherDeleted.php");
+        include_once(APPPATH."/events/shortage/decandingShortageVoucherDeleted.php");
+    }
 
 }
