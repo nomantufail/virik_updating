@@ -51,8 +51,8 @@ $active_record = TRUE;
 $db['default']['hostname'] = 'localhost';
 
 $db['default']['username'] = 'root';
-$db['default']['password'] = '123';
-$db['default']['database'] = 'vrk';
+$db['default']['password'] = '';
+$db['default']['database'] = 'viriklogistics_2_dec_15';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;

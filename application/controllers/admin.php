@@ -3690,6 +3690,52 @@ class Admin extends ParentController {
 
     }
 
+//    function make_freight_on_shortage_vouchers(){
+//        include_once(APPPATH."models/helperClasses/CommitShortages.php");
+//
+//        //destination solution
+//        $this->db->select('shortage_id');
+//        $this->db->join('products','products.id = destination_shortages_view.product_id','left');
+//        $this->db->where('destination_shortages_view.committed',1);
+//        $this->db->where('products.type','black oil');
+//        $result = $this->db->get('destination_shortages_view')->result();
+//        $shortage_ids = property_to_array('shortage_id', $result);
+//
+//        foreach($shortage_ids as $shrt_id){
+//
+//            $data = [
+//                'shortage_ids' => $shrt_id,
+//                'commit_date' => date('Y-m-d'),
+//                'agent_type' => '',
+//                'agent_id' => 0,
+//            ];
+//            $commit_manager = new CommitShortages($data);
+//            $commit_manager->letTheGameBegin();
+//        }
+//
+//        //decanding solution
+//        $this->db->select('shortage_id');
+//        $this->db->join('products','products.id = decanding_shortages_view.product_id','left');
+//        $this->db->where('decanding_shortages_view.committed',1);
+//        $this->db->where('products.type','black oil');
+//        $result = $this->db->get('decanding_shortages_view')->result();
+//        $shortage_ids = property_to_array('shortage_id', $result);
+//
+//        foreach($shortage_ids as $shrt_id){
+//
+//            $data = [
+//                'shortage_ids' => $shrt_id,
+//                'commit_date' => date('Y-m-d'),
+//                'agent_type' => '',
+//                'agent_id' => 0,
+//            ];
+//            $commit_manager = new CommitShortages($data);
+//            $commit_manager->letTheGameBegin();
+//        }
+//
+//        echo "done";
+//    }
+
     function _create_captcha(){
 
         /*$words = array( '2', '3', '4', '5', '6','7', '8', '9','0', 'a', 'b','z', 'n', 'b','x', 'y', 'v');

@@ -17,26 +17,26 @@ class CommitShortages {
 
     public $ci;
     public $db;
-    public function __construct()
+    public function __construct($data = null)
     {
         $this->ci = &get_instance();
         $this->db = $this->ci->db;
 
-        $this->setInputData();
+        $this->setInputData($data);
 
         $this->setShortagesData();
     }
 
-    public function setInputData()
+    public function setInputData($data = null)
     {
 
-        $shortage_ids = explode('_',$_POST['shortage_ids']);
+        $shortage_ids = explode('_',$data['shortage_ids']);
         $shortage_ids = arr_val_del(0, $shortage_ids);
         $this->setShortageIds($shortage_ids);
 
-        $this->setCommitDate($_POST['commit_date']);
-        $this->setCreditAgentType($_POST['agent_type']);
-        $this->setCreditAgent($_POST['agent_id']);
+        $this->setCommitDate($data['commit_date']);
+        $this->setCreditAgentType($data['agent_type']);
+        $this->setCreditAgent($data['agent_id']);
     }
 
     public function letTheGameBegin()
