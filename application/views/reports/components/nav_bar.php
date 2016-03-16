@@ -6,7 +6,7 @@
  * Time: 10:49 PM
  */
 ?>
-<ul id="myTab" class="nav nav-pills page-header">
+<ul id="myTab" class="nav nav-pills">
     <li class="<?php if($this->router->fetch_method() == 'index'){echo "active";} ?>"><a href="<?= base_url()."reports/index/";?>">Customer Reports</a></li>
     <li class="<?php if($this->router->fetch_method() == 'company'){echo "active";} ?>"><a href="<?= base_url()."reports/company/";?>">Company Reports</a></li>
     <li class="<?php if($this->router->fetch_method() == ''){echo "active";} ?>">
@@ -24,5 +24,6 @@
         </ul>
     </li>
     <li class="<?php if($this->router->fetch_method() == 'shortage_report'){echo "active";} ?>"><a href="<?= base_url()."reports/shortage_report/";?>">Shortage Reports</a></li>
-    <li class="<?php if($this->router->fetch_method() == 'freight_report'){echo "active";} ?>"><a href="<?= base_url()."reports/freight_report/";?>">Freight Reports</a></li>
+    <!--<li class="<?php /*if($this->router->fetch_method() == 'freight_report'){echo "active";} */?>"><a href="<?/*= base_url()."reports/freight_report/";*/?>">Freight Reports</a></li>-->
+    <li class="<?php if($this->router->fetch_method() == 'vehicle_position_report'){echo "active";} ?>"><a href="<?= base_url()."reports/vehicle_position_report/";?>">Vehicle Position</a></li>
 </ul>

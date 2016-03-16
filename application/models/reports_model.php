@@ -1,4 +1,5 @@
 <?php
+use App\models\helperClasses\VehiclePositionReportsGenerator;
 class Reports_model extends Parent_Model {
 
     public function __construct(){
@@ -311,5 +312,11 @@ class Reports_model extends Parent_Model {
         return $route_comparison;
     }
 
+    public function generate_vehicle_position_report($from, $to, $trip_types)
+    {
+        $reports_generator = new VehiclePositionReportsGenerator($from, $to, $trip_types);
+        $vehicle_position_reports = $reports_generator->generate();
+        return $vehicle_position_reports;
+    }
 }
 

@@ -29,6 +29,11 @@ class Trips_model extends CI_Model {
         return $result;
     }
 
+    public function get_trip_types()
+    {
+        $this->db->select('*');
+        return $this->db->get('trip_types')->result();
+    }
     public function trips_for_tankers_on_move($where = ''){
         $this->db->order_by("entryDate", "desc");
         if($where == ''){

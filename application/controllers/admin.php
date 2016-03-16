@@ -3690,22 +3690,33 @@ class Admin extends ParentController {
 
     }
 
+//    function delete_freight_on_shortage_vouchers(){
+//        include_once(APPPATH."models/helperClasses/CommitShortages.php");
+//
+//        //destination solution
+//        $this->db->where('detail','Freight on shortage for black oil');
+//        $this->db->where('voucher_date', '2016-02-29');
+//        $this->db->delete('voucher_journal');
+//
+//        echo "done";
+//    }
 //    function make_freight_on_shortage_vouchers(){
 //        include_once(APPPATH."models/helperClasses/CommitShortages.php");
 //
 //        //destination solution
-//        $this->db->select('shortage_id');
+//        $this->db->select('voucher_journal.shortage_id as shortage_id, voucher_journal.voucher_date as voucher_date');
 //        $this->db->join('products','products.id = destination_shortages_view.product_id','left');
+//        $this->db->join('voucher_journal','voucher_journal.shortage_id = destination_shortages_view.shortage_id','left');
 //        $this->db->where('destination_shortages_view.committed',1);
 //        $this->db->where('products.type','black oil');
 //        $result = $this->db->get('destination_shortages_view')->result();
 //        $shortage_ids = property_to_array('shortage_id', $result);
 //
-//        foreach($shortage_ids as $shrt_id){
+//        foreach($result as $shrt){
 //
 //            $data = [
-//                'shortage_ids' => $shrt_id,
-//                'commit_date' => date('Y-m-d'),
+//                'shortage_ids' => $shrt->shortage_id,
+//                'commit_date' => $shrt->voucher_date,
 //                'agent_type' => '',
 //                'agent_id' => 0,
 //            ];
@@ -3714,18 +3725,19 @@ class Admin extends ParentController {
 //        }
 //
 //        //decanding solution
-//        $this->db->select('shortage_id');
+//        $this->db->select('voucher_journal.shortage_id as shortage_id, voucher_journal.voucher_date as voucher_date');
 //        $this->db->join('products','products.id = decanding_shortages_view.product_id','left');
+//        $this->db->join('voucher_journal','voucher_journal.shortage_id = decanding_shortages_view.shortage_id','left');
 //        $this->db->where('decanding_shortages_view.committed',1);
 //        $this->db->where('products.type','black oil');
 //        $result = $this->db->get('decanding_shortages_view')->result();
 //        $shortage_ids = property_to_array('shortage_id', $result);
 //
-//        foreach($shortage_ids as $shrt_id){
+//        foreach($result as $shrt){
 //
 //            $data = [
-//                'shortage_ids' => $shrt_id,
-//                'commit_date' => date('Y-m-d'),
+//                'shortage_ids' => $shrt->shortage_id,
+//                'commit_date' => $shrt->voucher_date,
 //                'agent_type' => '',
 //                'agent_id' => 0,
 //            ];

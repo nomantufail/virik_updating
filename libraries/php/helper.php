@@ -56,7 +56,17 @@ function property_to_array($property, $objects)
     }
     return $temp_array;
 }
-
+function find_in_objects_by_key_value($key, $value, $objects)
+{
+    $item = null;
+    foreach($objects as $struct) {
+        if ($value == $struct->$key) {
+            $item = $struct;
+            break;
+        }
+    }
+    return $item;
+}
 function in_objects($key,$value,$objects)
 {
     foreach($objects as $object)

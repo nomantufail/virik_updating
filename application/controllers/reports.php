@@ -1,4 +1,6 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+use App\models\helperClasses\VehiclePositionReportsGenerator;
+if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 include_once(APPPATH."controllers/parentController.php");
 class Reports extends ParentController {
@@ -7,6 +9,7 @@ class Reports extends ParentController {
     public function __construct()
     {
         parent::__construct();
+        $this->include_helpers();
     }
 
     /* The default function that gets called when visiting the page */
@@ -689,6 +692,99 @@ class Reports extends ParentController {
         }
     }
 
+    public function vehicle_position_report($comand = null){
+        $headerData = array(
+            'title' => 'Virik Logistics | Reports',
+            'page' => 'reports',
+        );
+
+
+        $all_trip_types = $this->trips_model->get_trip_types();
+        if($comand == 'generate')
+        {
+            $keys = array();
+
+            $from = $this->helper_model->first_day_of_month();
+            $to = date('Y-m-d');
+            $trip_types = property_to_array('id',$all_trip_types);
+
+            if(isset($_GET['from']) && $_GET['from'] != '')
+            {
+                $from = $_GET['from'];
+            }
+            if(isset($_GET['to']) && $_GET['to'] != '')
+            {
+                $to = $_GET['to'];
+            }
+            if(isset($_GET['trip_types']) && sizeof($_GET['trip_types']) > 0)
+            {
+                if(in_array('all',$_GET['trip_types']))
+                    $trip_types = property_to_array('id',$all_trip_types);
+                else
+                    $trip_types = $_GET['trip_types'];
+            }else{
+                $trip_types = [0];
+            }
+
+            /*----------
+             * getting trip types
+             * */
+            $this->db->select('*');
+            $this->db->where_in('id',$trip_types);
+            $selected_trip_types = $this->db->get('trip_types')->result();
+            /*---------------------------------*/
+            $bodyData = array(
+                'reports' => $this->reports_model->generate_vehicle_position_report($from, $to, $trip_types),
+                'trip_types' => $all_trip_types,
+                'selected_trip_types' => $selected_trip_types,
+                'from' => $from,
+                'to' => $to,
+                'someMessage' => '',
+            );
+
+            if(isset($_GET['print'])){
+                if(isset($_POST['check'])){
+                    //$bodyData['report'] = $this->helper_model->filter_records($bodyData['report'], $_POST['check'],"trip_detail_id");
+                }
+                if(isset($_POST['column'])){
+                    //$bodyData['columns'] = $_POST['column'];
+                }
+                $this->load->view('reports/freight_report/print/freight_report', $bodyData);
+            }
+            else if(isset($_GET['export'])){
+                if(isset($_POST['check'])){
+                    //$bodyData['report'] = $this->helper_model->filter_records($bodyData['report'], $_POST['check'],"trip_detail_id");
+                }
+                if(isset($_POST['column'])){
+                    $bodyData['columns'] = $_POST['column'];
+                }
+                $this->load->view('reports/freight_report/export/freight_report', $bodyData);
+            }
+            else{
+                $this->load->view('components/header', $headerData);
+                $this->load->view('reports/vehicle_position_report/show/vehicle_position_report', $bodyData);
+                $this->load->view('components/footer');
+            }
+        }
+        else
+        {
+            $bodyData = array(
+                'trip_types' => $all_trip_types,
+                'from' => $this->helper_model->first_day_of_month(),
+                'to' => date('Y-m-d'),
+                'someMessage' => '',
+            );
+            $this->load->view('components/header', $headerData);
+            $this->load->view('reports/vehicle_position_report/make/vehicle_position_report', $bodyData);
+            $this->load->view('components/footer');
+        }
+
+    }
+
+    public function include_helpers(){
+        include_once(APPPATH."models/helperClasses/VehiclePositionReportsGenerator.php");
+        include_once(APPPATH."models/helperClasses/VehiclePosition.php");
+    }
     function _create_captcha(){
         /*$words = array( '2', '3', '4', '5', '6','7', '8', '9','0', 'a', 'b','z', 'n', 'b','x', 'y', 'v');
         $count = 1;
