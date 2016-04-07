@@ -73,12 +73,33 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    <?php
+                                        foreach($report as $record){
+                                    ?>
+                                            <tr style="">
+                                                <td></td>
+                                                <td><?= $record->getVehicleNumber() ?></td>
+                                                <td><?= $record->getCapacity() ?></td>
+                                                <td><?= $record->getIncome() ?></td>
+                                                <td><?= $record->getTrips() ?></td>
+                                                <td><?= $record->getTripExpenses() ?></td>
+                                                <td><?= round($record->getTripExpenses()/$record->getTrips(), 2)  ?></td>
+                                                <td><?= $record->getRepairMaintainence() ?></td>
+                                                <td><?= $record->getInstallment() ?></td>
+                                                <td><?= $record->getShortDip() ?></td>
+                                                <td><?= $record->getShortageAmount() ?></td>
+                                                <td><?= $record->getSalary() ?></td>
+                                                <td><?= $record->getTotalFuel() ?></td>
+                                                <td><?= $record->getTotalKm() ?></td>
+                                                <td><?= $record->getAvgFuel() ?></td>
+                                                <td></td>
+                                            </tr>
+                                    <?php
+                                        }
+                                    ?>
 
                                     </tbody>
                                     <tfoot>
-                                        <tr style="background-color: #333333; color:white;">
-
-                                        </tr>
                                     </tfoot>
                                 </table>
                             </form>

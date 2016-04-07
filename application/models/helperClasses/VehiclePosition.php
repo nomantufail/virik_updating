@@ -272,4 +272,11 @@ class VehiclePosition {
         $this->vehicle_number = $vehicle_number;
     }
 
+    public function getAvgFuel()
+    {
+        if($this->getTotalKm() > 0)
+            return round($this->getTotalFuel()/$this->getTotalKm(), 2);
+        return 0;
+    }
+
 } 

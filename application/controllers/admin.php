@@ -3690,6 +3690,11 @@ class Admin extends ParentController {
 
     }
 
+
+    function irfan_tanker()
+    {
+        $tanker_id =
+    }
 //    function delete_freight_on_shortage_vouchers(){
 //        include_once(APPPATH."models/helperClasses/CommitShortages.php");
 //

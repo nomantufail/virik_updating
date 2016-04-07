@@ -31,11 +31,11 @@
     </connection>
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
-    <filter-list connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f" dataset="viriklogistics_shortage_test.shortages" active-filter-id="" />
     <filter-list connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f" dataset="viriklogistics_shortage_test.destination_shortages_view" active-filter-id="" />
+    <filter-list connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f" dataset="viriklogistics_shortage_test.shortages" active-filter-id="" />
     <filter-list connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f" dataset="viriklogistics_shortage_test.account_titles" active-filter-id="" />
-    <filter-list connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f" dataset="viriklogistics_shortage_test.test_table" active-filter-id="" />
     <filter-list connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f" dataset="viriklogistics_shortage_test.customers" active-filter-id="" />
+    <filter-list connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f" dataset="viriklogistics_shortage_test.test_table" active-filter-id="" />
   </component>
   <component name="DBNavigator.Project.MethodExecutionManager">
     <method-browser />
@@ -46,13 +46,13 @@
     </execution-history>
     <argument-values-cache>
       <connection connection-id="503e016e-3902-4170-a4d1-7b56b8a7f14f">
-        <argument name="shortage_amount">
+        <argument name="shortage_id">
           <value><![CDATA[3]]></value>
         </argument>
         <argument name="voucher_id">
           <value><![CDATA[5]]></value>
         </argument>
-        <argument name="shortage_id">
+        <argument name="shortage_amount">
           <value><![CDATA[3]]></value>
         </argument>
       </connection>
