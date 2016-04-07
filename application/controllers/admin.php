@@ -3691,10 +3691,86 @@ class Admin extends ParentController {
     }
 
 
-    function irfan_tanker()
+    function tanker_expense_titles()
     {
-        $tanker_id =
+        $tanker_id = 426;
+
+        $this->db->select('account_titles.title');
+        $this->db->distinct();
+        $this->db->join('voucher_entry','voucher_entry.journal_voucher_id = voucher_journal.id','left');
+        $this->db->join('account_titles','account_titles.id = voucher_entry.account_title_id','left');
+        $this->db->where('voucher_journal.tanker_id', $tanker_id);
+        $this->db->where('account_titles.secondary_type', 'other_expense');
+        $result = $this->db->get('voucher_journal')->result();
+        var_dump($result);
     }
+
+    function tanker_trips_income($tanker_id, $trip_ids)
+    {
+        $this->db->select('
+             trips.id as trip_id, source_city.cityName as source,
+             destination_city.cityName as destination,
+             products.productName as product,
+             sum((trips_details.product_quantity * company_freight_unit)) as income,
+             trips.entryDate as tripDate
+        ');
+        $this->db->join('trips_details','trips_details.trip_id = trips.id','left');
+
+        $this->db->where('trips.tanker_id', $tanker_id);
+        $this->db->join('cities as source_city','source_city.id = trips_details.source','left');
+        $this->db->join('cities as destination_city','destination_city.id = trips_details.destination','left');
+        $this->db->join('products','products.id = trips_details.product','left');
+        $this->db->where_in('trips.id',$trip_ids);
+        $this->db->where('trips.active',1);
+        $this->db->order_by('trips.id');
+        $this->db->group_by('trips_details.product, trips_details.source, trips_details.destination');
+        $result = $this->db->get('trips')->result();
+        return $result;
+    }
+
+    function tanker_trips_expenses($tanker_id)
+    {
+        $this->db->select('voucher_journal.trip_id as trip_id, sum(voucher_entry.debit_amount) as amount, account_titles.title as title');
+        $this->db->join('voucher_journal','voucher_journal.trip_id = trips.id','left');
+        $this->db->join('voucher_entry','voucher_entry.journal_voucher_id = voucher_journal.id','left');
+        $this->db->join('account_titles','account_titles.id = voucher_entry.account_title_id','left');
+        $this->db->where('voucher_journal.tanker_id', $tanker_id);
+        $this->db->where('account_titles.secondary_type', 'other_expense');
+        $this->db->where('voucher_journal.trip_id !=', 0);
+        $this->db->where('voucher_journal.active',1);
+        $this->db->where('trips.active',1);
+        $this->db->order_by('voucher_journal.trip_id');
+        $this->db->group_by('voucher_journal.trip_id, voucher_entry.account_title_id');
+        $result = $this->db->get('trips')->result();
+        return $result;
+    }
+
+    function tanker_other_expenses($tanker_id)
+    {
+        $this->db->select('voucher_journal.id, sum(voucher_entry.debit_amount) as amount, account_titles.title as title');
+        $this->db->join('voucher_entry','voucher_entry.journal_voucher_id = voucher_journal.id','left');
+        $this->db->join('account_titles','account_titles.id = voucher_entry.account_title_id','left');
+        $this->db->where('voucher_journal.tanker_id', $tanker_id);
+        $this->db->where('account_titles.secondary_type', 'other_expense');
+        $this->db->where([
+            'voucher_journal.trip_id'=> 0,
+            'voucher_journal.trip_product_detail_id'=> 0
+        ]);
+        $this->db->where('voucher_journal.active',1);
+        $this->db->group_by('voucher_entry.account_title_id');
+        $result = $this->db->get('voucher_journal')->result();
+        return $result;
+    }
+
+    public function irfan_tanker()
+    {
+        $tanker_id = 426;
+        $trips_expenses = $this->tanker_trips_expenses($tanker_id);
+        $income = $this->tanker_trips_income(426, property_to_array('trip_id',$trips_expenses));
+        $other_expenses = $this->tanker_other_expenses($tanker_id);
+        $income = Arrays::groupBy($income, Functions::extractField('trip_id'), 'trip_id');
+    }
+
 //    function delete_freight_on_shortage_vouchers(){
 //        include_once(APPPATH."models/helperClasses/CommitShortages.php");
 //
