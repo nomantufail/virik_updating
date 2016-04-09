@@ -781,10 +781,43 @@ class Reports extends ParentController {
 
     }
 
+    public function irfan_tankers_report()
+    {
+        $headerData = array(
+            'title' => 'Virik Logistics | Reports',
+            'page' => 'reports',
+        );
+
+        $tanker_id = 0;
+        if(isset($_GET['tanker_id'])){
+            $tanker_id = $_GET['tanker_id'];
+        }
+        $from = $this->helper_model->first_day_of_month();
+        $to = date('Y-m-d');
+        if(isset($_GET['from']) && $_GET['from'] != '')
+            $from = $_GET['from'];
+        if(isset($_GET['to']) && $_GET['to'] != '')
+            $to = $_GET['to'];
+
+        include_once(APPPATH."models/reports/IrfanTankerReport.php");
+        $irfan_tanker_report = new IrfanTankerReport($tanker_id, $from, $to);
+        $report = $irfan_tanker_report->report();
+        $bodyData = array(
+            'report' => $report,
+            'from' => $from,
+            'to' => $to,
+            'someMessage' => '',
+        );
+        $this->load->view('components/header', $headerData);
+        $this->load->view('reports/irfan_tanker_report/show/report', $bodyData);
+        $this->load->view('components/footer');
+    }
+
     public function include_helpers(){
         include_once(APPPATH."models/helperClasses/VehiclePositionReportsGenerator.php");
         include_once(APPPATH."models/helperClasses/VehiclePosition.php");
     }
+
     function _create_captcha(){
         /*$words = array( '2', '3', '4', '5', '6','7', '8', '9','0', 'a', 'b','z', 'n', 'b','x', 'y', 'v');
         $count = 1;
